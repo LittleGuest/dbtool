@@ -12,6 +12,9 @@ const dbconn_list = ref([]);
 const add_drawer = ref(false);
 const diff_report_src = ref();
 const diff_report_dst = ref();
+const diff_sql_src = ref();
+const diff_sql_dst = ref();
+const standard_check = ref();
 
 const dbconn_form = reactive({
   driver: 'mysql',
@@ -67,68 +70,88 @@ const handleDelete = (id) => {
   del_dbconn_api(id);
   dbconn_list_api();
 }
+
+
+const onDiffReportClick = () => {
+
+}
+
 </script>
 
 <template>
   <el-main>
-    <el-row :gutter="20">
-      <el-col :span="16">
-        <div class="grid-content ep-bg-purple">
-          <el-table :data="dbconn_list" style="width: 100%" max-height="500">
-            <el-table-column prop="id" label="ID" />
-            <el-table-column prop="name" label="连接名" />
-            <el-table-column prop="host" label="主机名" />
-            <el-table-column prop="port" label="端口" />
-            <el-table-column prop="username" label="用户名" />
-            <el-table-column prop="database" label="数据库" />
-            <el-table-column fixed="right" label="操作">
-              <template #default="scope">
-                <el-button size="small" :icon="Edit" @click="handleEdit(scope.row)" />
-                <el-button size="small" type="danger" :icon="Delete" @click="handleDelete(scope.row.id)" />
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-button class="mt-4" style="width: 100%" :icon="Plus" @click="add_drawer = true" />
-        </div>
-      </el-col>
-      <el-col :span="8">
-        <div class="grid-content ep-bg-purple">
-          <el-form :inline="true" label-width="auto">
-            <el-form-item label="差异报告">
-              <label>fff</label>
-              <el-select v-model="ddiff_report_src" placeholder="Select">
-                <el-option v-for="conn in dbconn_list" :key="conn.id" :label="conn.name" :value="conn.id" />
-              </el-select>
-              <label>fff</label>
-              <el-select v-model="ddiff_report_dst" placeholder="Select">
-                <el-option v-for="conn in dbconn_list" :key="conn.id" :label="conn.name" :value="conn.id" />
-              </el-select>
-            </el-form-item>
-          </el-form>
+    <el-table :data="dbconn_list" style="width: 100%" max-height="500">
+      <el-table-column prop="id" label="ID" />
+      <el-table-column prop="name" label="连接名" />
+      <el-table-column prop="host" label="主机名" />
+      <el-table-column prop="port" label="端口" />
+      <el-table-column prop="username" label="用户名" />
+      <el-table-column prop="database" label="数据库" />
+      <el-table-column fixed="right" label="操作">
+        <template #default="scope">
+          <el-button size="small" :icon="Edit" @click="handleEdit(scope.row)" />
+          <el-button size="small" type="danger" :icon="Delete" @click="handleDelete(scope.row.id)" />
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-button class="mt-4" style="width: 100%" :icon="Plus" @click="add_drawer = true" />
 
-          <el-form :inline="true" label-width="auto">
-            <el-form-item label="连接名">
-              <el-input v-model="dbconn_form.name" />
-            </el-form-item>
-            <el-form-item label="主机名">
-              <el-input v-model="dbconn_form.host" />
-            </el-form-item>
-            <el-form-item label="端口">
-              <el-input-number v-model="dbconn_form.port" :min="0" :max="65535" />
-            </el-form-item>
-            <el-form-item label="用户名">
-              <el-input v-model="dbconn_form.username" />
-            </el-form-item>
-            <el-form-item label="密码">
-              <el-input v-model="dbconn_form.password" type="password" />
-            </el-form-item>
-            <el-form-item label="数据库">
-              <el-input v-model="dbconn_form.database" />
-            </el-form-item>
-          </el-form>
-        </div>
-      </el-col>
-    </el-row>
+    <el-divider border-style="dashed" />
+
+    <el-form :inline="true" label-width="auto">
+      <el-form-item label="差异报告">
+        <el-form-item label="基准库">
+          <el-select v-model="diff_report_src" placeholder="请选择" style="width: 152px;">
+            <el-option v-for="conn in dbconn_list" :key="conn.id" :label="conn.name" :value="conn.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="变动库">
+          <el-select v-model="diff_report_dst" placeholder="请选择" style="width: 152px;">
+            <el-option v-for="conn in dbconn_list" :key="conn.id" :label="conn.name" :value="conn.id" />
+          </el-select>
+        </el-form-item>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onDiffReportClick">生成</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-form :inline="true" label-width="auto">
+      <el-form-item label="差异SQL">
+        <el-form-item label="基准库">
+          <el-select v-model="diff_sql_src" placeholder="请选择" style="width: 152px;">
+            <el-option v-for="conn in dbconn_list" :key="conn.id" :label="conn.name" :value="conn.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="变动库">
+          <el-select v-model="diff_sql_dst" placeholder="请选择" style="width: 152px;">
+            <el-option v-for="conn in dbconn_list" :key="conn.id" :label="conn.name" :value="conn.id" />
+          </el-select>
+        </el-form-item>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onDiffReportClick">结构差异</el-button>
+        <el-button type="primary" @click="onDiffReportClick">数据差异</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-form :inline="true" label-width="auto">
+      <el-form-item label="规范检查">
+        <el-select v-model="standard_check" placeholder="请选择" style="width: 152px;">
+          <el-option v-for="conn in dbconn_list" :key="conn.id" :label="conn.name" :value="conn.id" />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onDiffReportClick">生成</el-button>
+        <el-button type="primary" @click="onDiffReportClick">自定义检查</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-form :inline="true" label-width="auto">
+      <el-form-item label="逆向生成">
+        <el-button type="primary" @click="onDiffReportClick">配置生成</el-button>
+      </el-form-item>
+    </el-form>
 
     <el-drawer v-model="add_drawer" direction="ttb" size="70%">
       <template #header>
